@@ -7,7 +7,7 @@ from src.app.core.middlewares import setup_cors, setup_session
 from src.app.core.lifespan import lifespan
 from src.app.core.logging import logger
 from src.app.core.routers import setup_routers
-from src.ui.gradio_app import build_product_catalog_ui
+from src.ui.gradio_app import build_gradio_ui
 
 app = FastAPI(lifespan=lifespan)
 logger.info("FastAPI application started")
@@ -20,7 +20,7 @@ setup_session(app)
 setup_routers(app)
 
 # Gradio app
-audio_ui = build_product_catalog_ui()
+audio_ui = build_gradio_ui()
 app = gr.mount_gradio_app(app, audio_ui, path="/chatbot", root_path="/chatbot")
 
 if __name__ == "__main__":
