@@ -1,7 +1,7 @@
-"""
-Base API Endpoints
+from fastapi import APIRouter
 
-Health check and root endpoints.
-"""
+router = APIRouter()
 
-# TODO: Implement health check and root endpoints
+@router.get("/")
+def onboard_message():
+    return {"message": "You've been onboarded!"}

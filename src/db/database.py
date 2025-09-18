@@ -1,7 +1,29 @@
-"""
-Database Configuration
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from src.app.core.init_settings import global_settings as settings
 
-Database engines, sessions, and dependency injection setup.
-"""
+# Base class for the database models
+Base = declarative_base()
 
-# TODO: Implement SQLAlchemy engines, sessions, and database dependencies
+# Synchronous engine and session
+sync_engine = create_engine(settings.DB_URL)
+SyncSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=sync_engine)
+
+# Asynchronous engine and session
+async_engine = create_async_engine(settings.ASYNC_DB_URL, echo=False, future=True)
+AsyncSessionLocal = sessionmaker(bind=async_engine, expire_on_commit=False, class_=AsyncSession)
+
+def init_db():
+    Base.metadata.create_all(bind=sync_engine)
+
+def get_sync_db():
+    db = SyncSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+async def get_async_db():
+    async with AsyncSessionLocal() as session:
+        yield session
