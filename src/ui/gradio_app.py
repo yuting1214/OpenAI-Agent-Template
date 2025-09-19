@@ -7,19 +7,20 @@ Now properly separated into modules for easy maintenance and scaling.
 import gradio as gr
 from .gradio.styles import get_modern_dark_theme
 from .gradio.components import get_header_component, get_chat_interface_header
-from .gradio.handlers import create_agent_handlers
+from .gradio.event_listeners import (
+    handle_user_message,
+    handle_agent_message,
+    clear_chat
+)
 
 def build_gradio_ui():
     """
-    Builds the main UI using modular components.
-    Now with real AI agent integration!
+    Builds the main UI using simple function-based handlers.
+    Clean and simple AI agent integration!
     """
     
     # Get the CSS theme
     css = get_modern_dark_theme()
-    
-    # Initialize handler
-    bot_handlers = create_agent_handlers()
 
     with gr.Blocks(css=css, title="🤖 AI Agent Chat", theme=gr.themes.Base()) as demo:
         
@@ -31,7 +32,7 @@ def build_gradio_ui():
             # Chat interface header
             gr.HTML(get_chat_interface_header())
             
-            # Main chatbot with bubble styling
+            # Main chatbot with ChatMessage support
             chatbot = gr.Chatbot(
                 type="messages", 
                 height=500,
@@ -40,7 +41,8 @@ def build_gradio_ui():
                 show_copy_button=True,
                 bubble_full_width=False,
                 layout="bubble",
-                elem_classes=["chatbot"]
+                elem_classes=["chatbot"],
+                value=[]  # Initialize with empty ChatMessage list
             )
             
             # Input area with better spacing
@@ -55,20 +57,20 @@ def build_gradio_ui():
                 )
                 clear = gr.Button("🔄 Clear", variant="primary", scale=1, size="sm")
 
-        # Event handlers using modular handlers
+        # Event handlers using event listeners
         msg.submit(
-            bot_handlers.handle_user_message, 
+            handle_user_message, 
             [msg, chatbot], 
             [msg, chatbot], 
             queue=False
         ).then(
-            bot_handlers.generate_bot_response, 
+            handle_agent_message, 
             chatbot, 
             chatbot
         )
         
         clear.click(
-            bot_handlers.clear_chat, 
+            clear_chat, 
             None, 
             chatbot, 
             queue=False
