@@ -92,7 +92,6 @@ def build_chat_ui():
         get_demo_footer()
         
         # Event handlers
-        
         ## Main chat flow
         msg.submit(
             handle_user_message,
@@ -103,7 +102,7 @@ def build_chat_ui():
             handle_demo_response,
             chatbot,
             chatbot,
-            queue=False
+            queue=True  # Must be True for streaming responses
         ).then(
             # Auto-save after response
             demo_auto_save_conversation,

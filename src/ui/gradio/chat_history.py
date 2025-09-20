@@ -54,6 +54,28 @@ class ChatHistoryManager:
         return messages
     
     @staticmethod
+    def gradio_to_openai_messages(history: List[ChatMessage]) -> List[Dict[str, Any]]:
+        """
+        Convert Gradio ChatMessage objects to OpenAI API format.
+        Similar to ChatHistoryManager.serialize_chat_messages but for OpenAI API.
+        """
+        messages = []
+        for msg in history:
+            if hasattr(msg, 'role') and hasattr(msg, 'content'):
+                # Handle ChatMessage objects
+                messages.append({
+                    "role": msg.role,
+                    "content": msg.content
+                })
+            elif isinstance(msg, dict) and "role" in msg and "content" in msg:
+                # Handle dict format messages
+                messages.append({
+                    "role": msg["role"],
+                    "content": msg["content"]
+                })
+        return messages
+    
+    @staticmethod
     def generate_conversation_title(messages: List[ChatMessage], max_length: int = 40) -> str:
         """
         Generate a title for a conversation based on the first user message.

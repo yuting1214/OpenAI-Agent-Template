@@ -1,10 +1,7 @@
 import gradio as gr
 from gradio import ChatMessage
 from src.ui.gradio.chat_history import ChatHistoryManager
-
-def simple_echo_response(message: str, history):
-    """Simple echo response for demo purposes."""
-    return f"You said: {message}"
+from src.chain.runtime import call_llm_api
 
 
 def handle_user_message(user_message: str, history):
@@ -17,25 +14,56 @@ def handle_user_message(user_message: str, history):
     return "", updated_history
 
 
-def handle_demo_response(history):
-    """Handle demo AI response (simple echo)."""
-    if not history:
-        return history
+async def handle_demo_response(history):
+    """Handle AI response using OpenAI API."""
+    # Include all previous messages into llm api call
+    messages = ChatHistoryManager.gradio_to_openai_messages(history)
     
-    # Get the last user message
-    last_message = history[-1]
-    if hasattr(last_message, 'content'):
-        user_input = last_message.content
-    else:
-        user_input = last_message.get('content', '') if isinstance(last_message, dict) else ""
-    
-    # Generate simple response
-    response = simple_echo_response(user_input, history)
-    
-    # Add assistant response
-    updated_history = history + [ChatMessage(role="assistant", content=response)]
-    return updated_history
+    try:
+        response = await call_llm_api(messages)
+        
+        # Flag to track if we've added the initial message
+        message_started = False
 
+        async for chunk in response:
+            choices = getattr(chunk, "choices", [])
+            if choices and (delta := getattr(choices[0], "delta", None)):
+                if content := getattr(delta, "content", None):
+                    if not message_started:
+                        history.append(ChatMessage(role="assistant", content=""))
+                        message_started = True
+                    
+                    # Update the content of the current message
+                    history[-1] = ChatMessage(
+                        role="assistant", 
+                        content=history[-1].content + content
+                    )
+                    yield history
+                
+                elif tool_calls := getattr(delta, "tool_calls", None):
+                    if not message_started:
+                        history.append(ChatMessage(role="assistant", content=""))
+                        message_started = True
+                    
+                    # Handle tool calls - for now, append as text content
+                    tools_text = f"\n[Tool calls: {str(tool_calls)}]"
+                    history[-1] = ChatMessage(
+                        role="assistant", 
+                        content=history[-1].content + tools_text
+                    )
+                    yield history
+
+                else:
+                    pass
+            
+    except Exception as e:
+        print(f"Error in agent response: {e}")
+        history[-1] = ChatMessage(
+            role="assistant",
+            content="Sorry, I'm having trouble responding right now.",
+            metadata={"title": "💥 Error"}
+        )
+        yield history
 
 def demo_create_new_conversation():
     """Create a new conversation."""
