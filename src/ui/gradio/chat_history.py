@@ -200,18 +200,38 @@ class ChatHistoryManager:
     def get_conversation_list(saved_conversations: List[Dict[str, Any]]) -> List[List[str]]:
         """
         Get formatted conversation list for display in gr.Dataset.
+        Conversations are sorted by timestamp (newest first).
         
         Args:
             saved_conversations: List of saved conversations
             
         Returns:
-            List of conversation entries for gr.Dataset
+            List of conversation entries for gr.Dataset, sorted by timestamp descending
         """
         if not saved_conversations:
             return []
         
+        # Sort conversations by timestamp (newest first)
+        def get_timestamp_for_sorting(conv):
+            timestamp = conv.get("timestamp", "")
+            try:
+                if timestamp:
+                    return datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                else:
+                    # Use epoch time (1970) for conversations without timestamp
+                    return datetime.fromtimestamp(0)
+            except:
+                # Fallback to epoch time if timestamp parsing fails
+                return datetime.fromtimestamp(0)
+        
+        sorted_conversations = sorted(
+            saved_conversations, 
+            key=get_timestamp_for_sorting, 
+            reverse=True  # Newest first
+        )
+        
         conversation_list = []
-        for i, conv in enumerate(saved_conversations):
+        for i, conv in enumerate(sorted_conversations):
             title = conv.get("title", f"Conversation {i+1}")
             timestamp = conv.get("timestamp", "")
             message_count = conv.get("message_count", 0)
