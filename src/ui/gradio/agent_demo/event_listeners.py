@@ -1,31 +1,44 @@
 from typing import List
 import json
 from agents import Runner
-from openai.types.responses import ResponseTextDeltaEvent
 from gradio import ChatMessage
-from src.agent.runtime import ai_agent
+from openai.types.responses import ResponseTextDeltaEvent
+from src.agent import current_agent
+from src.agent.memory import get_or_create_memory_session
+from src.app.core.logging import logger
 
         
-def clear_chat():
-    """Clear the chat history."""
+def clear_chat(session_id: str):
+    """Clear the chat history and optionally clear memory session."""
+    # Note: We could add memory session clearing here if needed
+    # For now, just clear the UI - memory persists for session continuity
     return None
 
-def handle_user_message(user_message: str, history: List[ChatMessage]) -> tuple:
+def handle_user_message(user_message: str, history: List[ChatMessage], session_id: str) -> tuple:
     """
     Handles user message input and updates chat history.
     
     Args:
         user_message: The user's input message
         history: Current chat history
+        session_id: Unique session identifier for memory persistence
         
     Returns:
         Tuple of (empty_string, updated_history)
     """
-    return "", history + [ChatMessage(role="user", content=user_message)]
+    # Add user message to UI history
+    updated_history = history + [ChatMessage(role="user", content=user_message)]
+    return "", updated_history
 
-async def handle_agent_message(history: List[ChatMessage]):
-    """Handle agent message with real AI streaming using ChatMessage format."""
-    # Handle both ChatMessage and dict formats for compatibility
+async def handle_agent_message(history: List[ChatMessage], session_id: str):
+    """
+    Handle agent message with real AI streaming using ChatMessage format and memory session.
+    
+    Args:
+        history: Current chat history from Gradio UI
+        session_id: Unique session identifier for memory persistence
+    """
+    # Get the latest user message from history
     if history:
         last_message = history[-1]
         if hasattr(last_message, 'content'):
@@ -37,9 +50,14 @@ async def handle_agent_message(history: List[ChatMessage]):
         user_input = ""
     
     try:
+        # Get or create memory session for this user session
+        memory_session = await get_or_create_memory_session(session_id)
+        
+        # Run agent with memory session for persistent conversation history
         result = Runner.run_streamed(
-            ai_agent,
-            user_input,
+            current_agent,
+            input=user_input,
+            session=memory_session
         )
         
         # Flag to track if we've added the initial message
@@ -95,7 +113,7 @@ async def handle_agent_message(history: List[ChatMessage]):
                 pass
                 
     except Exception as e:
-        print(f"Error in agent response: {e}")
+        logger.error(f"Error in agent response: {e}")
         history[-1] = ChatMessage(
             role="assistant",
             content="Sorry, I'm having trouble responding right now.",

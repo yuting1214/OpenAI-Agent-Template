@@ -3,17 +3,19 @@ Gradio UI Application
 
 Modular Gradio Blocks UI for the AI agent interface.
 Now properly separated into modules for easy maintenance and scaling.
+Includes session state management for persistent conversation memory.
 """
+import uuid
 import gradio as gr
-from .gradio.styles import get_modern_dark_theme
-from .gradio.components import get_header_component, get_chat_interface_header
-from .gradio.event_listeners import (
+from .styles import get_modern_dark_theme
+from .components import get_header_component, get_chat_interface_header
+from .event_listeners import (
     handle_user_message,
     handle_agent_message,
     clear_chat
 )
 
-def build_gradio_ui():
+def build_agent_ui():
     """
     Builds the main UI using simple function-based handlers.
     Clean and simple AI agent integration!
@@ -23,6 +25,9 @@ def build_gradio_ui():
     css = get_modern_dark_theme()
 
     with gr.Blocks(css=css, title="🤖 AI Agent Chat", theme=gr.themes.Base()) as demo:
+        
+        # Session State - Generate unique session ID for each user session
+        session_id = gr.State(lambda: str(uuid.uuid4()))
         
         # Header Component
         gr.HTML(get_header_component())
@@ -51,27 +56,44 @@ def build_gradio_ui():
                     placeholder="Type your message here...",
                     label="",
                     lines=1,
+                    max_lines=3,
                     scale=4,
                     show_label=False,
                     container=False
                 )
-                clear = gr.Button("🔄 Clear", variant="primary", scale=1, size="sm")
+                with gr.Column(scale=1):
+                    submit = gr.Button("📤 Send", variant="primary", size="sm")
+                    clear = gr.Button("🔄 Clear", variant="secondary", size="sm")
 
-        # Event handlers using event listeners
+        # Event handlers using event listeners with session state
+        # Submit on Enter key (existing functionality)
         msg.submit(
             handle_user_message, 
-            [msg, chatbot], 
+            [msg, chatbot, session_id], 
             [msg, chatbot], 
             queue=False
         ).then(
             handle_agent_message, 
-            chatbot, 
+            [chatbot, session_id], 
             chatbot
         )
         
+        # Submit on button click (new functionality for consistency)
+        submit.click(
+            handle_user_message, 
+            [msg, chatbot, session_id], 
+            [msg, chatbot], 
+            queue=False
+        ).then(
+            handle_agent_message, 
+            [chatbot, session_id], 
+            chatbot
+        )
+        
+        # Clear chat history
         clear.click(
             clear_chat, 
-            None, 
+            [session_id], 
             chatbot, 
             queue=False
         )
