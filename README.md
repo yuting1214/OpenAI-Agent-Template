@@ -1,7 +1,7 @@
 # 🤖 OpenAI SDK Learning Platform
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/openai-agent-sdk?referralCode=jk_FgY&utm_medium=integration&utm_source=template&utm_campaign=generic)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 
 
@@ -45,8 +45,6 @@ cd OpenAI-Agent-Template
 # Using uv (recommended)
 uv sync
 
-# Or using pip
-pip install -r requirements.txt
 ```
 
 ### **3. Configure API Keys**
@@ -58,7 +56,10 @@ FIREWORKS_API_KEY=your_fireworks_api_key_here  # Optional
 
 ### **4. Run the Application**
 ```bash
-python main.py
+python -m src.app.main
+
+# or
+uv run python -m src.app.main
 ```
 
 ### **5. Explore Both Interfaces**
@@ -127,14 +128,17 @@ AGENT_CONFIGS = {
 ### **🎛️ Switch Between Agents**
 ```bash
 # Use environment variable to switch agents
-AGENT_TYPE=openai python main.py      # Default OpenAI
-AGENT_TYPE=fireworks python main.py   # Fireworks AI
-AGENT_TYPE=your_custom_agent python main.py  # Your custom agent
+AGENT_TYPE=openai     # Default OpenAI
+AGENT_TYPE=fireworks  # Fireworks AI
+AGENT_TYPE=your_custom_agent # Your custom agent
 ```
 
 ### **🛠️ Add Custom Tools**
 Create new tools in `src/agent/tools/`:
 ```python
+from agents import function_tool
+
+@function_tool  
 def your_custom_tool():
     """Your custom tool implementation"""
     pass
@@ -180,7 +184,7 @@ OPENAI_API_KEY=your_key_here
 # Optional
 FIREWORKS_API_KEY=your_fireworks_key
 AGENT_TYPE=openai  # or fireworks
-DB_URL=your_database_url
+DB_URL=your_database_url # required only for remote hosting
 ```
 
 ### **Docker Deployment**
