@@ -6,7 +6,7 @@ with your existing agent runtime for persistent conversation memory.
 """
 
 from agents import Runner
-from src.agent.runtime import ai_agent
+from src.agent import current_agent
 from src.agent.memory import get_or_create_memory_session
 from src.app.core.logging import get_logger
 
@@ -30,7 +30,7 @@ async def chat_with_memory_example(session_id: str, user_input: str) -> str:
         
         # Run the agent with memory session (async version)
         result = await Runner.run(
-            ai_agent, 
+            current_agent, 
             input=user_input, 
             session=memory_session
         )

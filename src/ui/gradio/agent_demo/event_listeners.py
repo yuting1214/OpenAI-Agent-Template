@@ -3,8 +3,9 @@ import json
 from agents import Runner
 from gradio import ChatMessage
 from openai.types.responses import ResponseTextDeltaEvent
-from src.agent.runtime import ai_agent
+from src.agent import current_agent
 from src.agent.memory import get_or_create_memory_session
+from src.app.core.logging import logger
 
         
 def clear_chat(session_id: str):
@@ -54,7 +55,7 @@ async def handle_agent_message(history: List[ChatMessage], session_id: str):
         
         # Run agent with memory session for persistent conversation history
         result = Runner.run_streamed(
-            ai_agent,
+            current_agent,
             input=user_input,
             session=memory_session
         )
@@ -112,7 +113,7 @@ async def handle_agent_message(history: List[ChatMessage], session_id: str):
                 pass
                 
     except Exception as e:
-        print(f"Error in agent response: {e}")
+        logger.error(f"Error in agent response: {e}")
         history[-1] = ChatMessage(
             role="assistant",
             content="Sorry, I'm having trouble responding right now.",

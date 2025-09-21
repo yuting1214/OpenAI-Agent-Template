@@ -220,7 +220,7 @@ class ChatHistoryManager:
                 else:
                     # Use epoch time (1970) for conversations without timestamp
                     return datetime.fromtimestamp(0)
-            except:
+            except (ValueError, TypeError, KeyError):
                 # Fallback to epoch time if timestamp parsing fails
                 return datetime.fromtimestamp(0)
         
@@ -243,7 +243,7 @@ class ChatHistoryManager:
                     formatted_time = dt.strftime("%m/%d %H:%M")
                 else:
                     formatted_time = ""
-            except:
+            except (ValueError, TypeError):
                 formatted_time = ""
             
             # Create display entry
