@@ -21,8 +21,8 @@ from .prompt.example import INSTRUCTIONS
 from .tools.example import fetch_weather
 from src.app.core.logging import logger
 
-# Enable OpenAI tracing
-set_tracing_export_api_key(os.getenv('OPENAI_API_KEY'))
+# Enable OpenAI tracing (with placeholder if key is missing)
+set_tracing_export_api_key(os.getenv('OPENAI_API_KEY', 'placeholder-key-for-tracing'))
 
 # Agent Configurations
 AGENT_CONFIGS = {

@@ -9,7 +9,7 @@ model = OpenAIChatCompletionsModel(
     model="accounts/fireworks/models/gpt-oss-120b",
     openai_client=AsyncOpenAI(
         base_url="https://api.fireworks.ai/inference/v1",
-        api_key=os.getenv("FIREWORKS_API_KEY"),
+        api_key=os.getenv("FIREWORKS_API_KEY", "placeholder-key-set-FIREWORKS_API_KEY-env-var"),
         http_client=DefaultAioHttpClient(),
     ),
 )
