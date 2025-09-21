@@ -13,12 +13,12 @@ def get_header_component():
     <div class="cyber-header">
         <div class="holo-text">🤖 AI Agent</div>
         <p style="color: #a78bfa; font-family: 'Inter', sans-serif; font-size: 0.85rem; margin: 5px 0; opacity: 0.8;">
-            Powered by Fireworks AI • Real-time responses
+            Powered by LLM • Real-time responses
         </p>
         
         <div class="status-grid">
             <div class="status-item">
-                <div>🚀 Fireworks AI</div>
+                <div>🚀 LLM</div>
                 <div style="font-size: 0.6rem; opacity: 0.7; margin-top: 2px;">Connected</div>
             </div>
             <div class="status-item">
@@ -44,7 +44,7 @@ def get_chat_interface_header():
             💬 AI Agent Chat
         </h3>
         <p style="color: #9ca3af; font-size: 0.8rem; margin: 3px 0 0; opacity: 0.8;">
-            Chat with a real AI agent powered by Fireworks AI
+            Chat with a real AI agent powered by your favorite LLM
         </p>
     </div>
     """

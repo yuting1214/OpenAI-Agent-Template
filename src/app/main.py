@@ -7,7 +7,7 @@ from src.app.core.middlewares import setup_cors, setup_session
 from src.app.core.lifespan import lifespan
 from src.app.core.logging import logger
 from src.app.core.routers import setup_routers
-from src.ui.gradio_app import build_gradio_ui
+from src.ui.gradio.agent_demo.app import build_agent_ui
 from src.ui.gradio.chat_demo.app import build_chat_ui
 
 app = FastAPI(lifespan=lifespan)
@@ -21,7 +21,7 @@ setup_session(app)
 setup_routers(app)
 
 # Gradio app
-agent_ui = build_gradio_ui()
+agent_ui = build_agent_ui()
 chat_ui = build_chat_ui()
 app = gr.mount_gradio_app(app, agent_ui, path="/agent", root_path="/agent")
 app = gr.mount_gradio_app(app, chat_ui, path="/chat", root_path="/chat")
