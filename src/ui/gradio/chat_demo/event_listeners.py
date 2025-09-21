@@ -2,6 +2,7 @@ import gradio as gr
 from gradio import ChatMessage
 from src.ui.gradio.chat_history import ChatHistoryManager
 from src.chain.runtime import call_llm_api
+from src.app.core.logging import logger
 
 
 def handle_user_message(user_message: str, history):
@@ -57,7 +58,7 @@ async def handle_demo_response(history):
                     pass
             
     except Exception as e:
-        print(f"Error in agent response: {e}")
+        logger.error(f"Error in agent response: {e}")
         history[-1] = ChatMessage(
             role="assistant",
             content="Sorry, I'm having trouble responding right now.",
@@ -75,18 +76,18 @@ def demo_auto_save_conversation(conversation_id, messages, saved_conversations):
     Auto-save conversation after each message exchange.
     Fixed version for the demo.
     """
-    print(f"Auto-save called with {len(messages)} messages")
+    logger.debug(f"Auto-save called with {len(messages)} messages")
     
     # Only auto-save if we have at least one complete exchange (user + assistant)
     if len(messages) >= 2:
-        print("Auto-saving conversation...")
+        logger.info("Auto-saving conversation...")
         new_id, updated_conversations = ChatHistoryManager.save_conversation(
             conversation_id, messages, saved_conversations
         )
-        print(f"Saved as conversation {new_id}, total conversations: {len(updated_conversations)}")
+        logger.info(f"Saved as conversation {new_id}, total conversations: {len(updated_conversations)}")
         return new_id, updated_conversations
     
-    print("Not enough messages to auto-save")
+    logger.debug("Not enough messages to auto-save")
     return conversation_id, saved_conversations
 
 
@@ -95,33 +96,33 @@ def demo_update_conversation_list(saved_conversations):
     Update the conversation list for display.
     Fixed version for the demo.
     """
-    print(f"Updating conversation list with {len(saved_conversations)} conversations")
+    logger.debug(f"Updating conversation list with {len(saved_conversations)} conversations")
     
     conversation_samples = ChatHistoryManager.get_conversation_list(saved_conversations)
-    print(f"Generated {len(conversation_samples)} conversation samples")
+    logger.debug(f"Generated {len(conversation_samples)} conversation samples")
     
     return gr.Dataset(samples=conversation_samples)
 
 
 def demo_manual_save(conversation_id, messages, saved_conversations):
     """Manually save the current conversation."""
-    print(f"Manual save requested: {len(messages)} messages")
+    logger.info(f"Manual save requested: {len(messages)} messages")
     if messages:
         new_id, updated = ChatHistoryManager.save_conversation(
             conversation_id, messages, saved_conversations
         )
-        print(f"Manually saved as conversation {new_id}")
+        logger.info(f"Manually saved as conversation {new_id}")
         return new_id, updated
     else:
-        print("No messages to save")
+        logger.warning("No messages to save")
         return conversation_id, saved_conversations
     
 
 def demo_load_conversation(evt: gr.SelectData, saved_conversations):
     """Load selected conversation from the list."""
-    print(f"Loading conversation at index {evt.index}")
+    logger.info(f"Loading conversation at index {evt.index}")
     if saved_conversations and 0 <= evt.index < len(saved_conversations):
         new_id, messages = ChatHistoryManager.load_conversation(evt.index, saved_conversations)
-        print(f"Loaded conversation {new_id} with {len(messages)} messages")
+        logger.info(f"Loaded conversation {new_id} with {len(messages)} messages")
         return new_id, messages
     return None, []

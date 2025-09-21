@@ -57,7 +57,7 @@ def build_chat_ui():
         # Main layout
         with gr.Row():
             # History sidebar
-            new_chat_btn, conversation_list, save_btn = create_history_sidebar()
+            conversation_list, new_chat_btn, save_btn = create_history_sidebar()
             
             # Main chat area
             with gr.Column(scale=3, elem_classes=["neural-chat"]):

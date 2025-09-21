@@ -14,9 +14,9 @@ def get_demo_header():
     """
     return gr.HTML("""
         <div style="text-align: center; padding: 20px;">
-            <h1 style="color: #fff; margin-bottom: 10px;">🤖 Chat History Demo</h1>
+            <h1 style="color: #fff; margin-bottom: 10px;">🤖 Chat Completion Demo</h1>
             <p style="color: #ccc; margin: 0;">
-                Demonstrating save/load chat history with only gr.Chatbot
+                Demonstrating save/load chat history with localStorage
             </p>
         </div>
     """)
@@ -61,6 +61,13 @@ def create_history_sidebar() -> Tuple[gr.Button, gr.Dataset, gr.Button]:
             </div>
         """)
         
+        # Conversation list - keep components but hide empty textbox with CSS
+        conversation_list = gr.Dataset(
+            components=[gr.Textbox(visible=False)],  # Make textbox invisible
+            samples=[],
+            elem_classes=["conversation-list"]
+        )
+
         # New chat button
         new_chat_button = gr.Button(
             "➕ New Chat",
@@ -77,13 +84,6 @@ def create_history_sidebar() -> Tuple[gr.Button, gr.Dataset, gr.Button]:
             elem_classes=["save-chat-btn"]
         )
         
-        # Conversation list - keep components but hide empty textbox with CSS
-        conversation_list = gr.Dataset(
-            components=[gr.Textbox(visible=False)],  # Make textbox invisible
-            samples=[],
-            elem_classes=["conversation-list"]
-        )
-        
         # Instructions
         gr.HTML("""
             <div style="padding: 10px; font-size: 12px; color: #888; border-top: 1px solid #333; margin-top: 10px;">
@@ -91,7 +91,7 @@ def create_history_sidebar() -> Tuple[gr.Button, gr.Dataset, gr.Button]:
             </div>
         """)
     
-    return new_chat_button, conversation_list, save_button
+    return conversation_list, new_chat_button, save_button
 
 
 def create_compact_history_toggle() -> Tuple[gr.Button, gr.Column]:
