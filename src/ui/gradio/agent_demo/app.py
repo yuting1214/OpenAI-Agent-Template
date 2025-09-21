@@ -55,7 +55,8 @@ def build_agent_ui():
                 msg = gr.Textbox(
                     placeholder="Type your message here...",
                     label="",
-                    lines=2,
+                    lines=1,
+                    max_lines=3,
                     scale=4,
                     show_label=False,
                     container=False
