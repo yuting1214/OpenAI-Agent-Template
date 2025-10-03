@@ -43,7 +43,7 @@ AGENT_CONFIGS = {
 }
 
 # Default agent configuration
-DEFAULT_AGENT = "openai"
+DEFAULT_AGENT = "fireworks"
 
 # Current active agent (can be changed via environment variable)
 CURRENT_AGENT_KEY = os.getenv('AGENT_TYPE', DEFAULT_AGENT)
