@@ -98,4 +98,10 @@ def build_agent_ui():
             queue=False
         )
 
+    # Configure queue for better concurrency
+    demo.queue(
+        max_size=100,           # Maximum number of requests in queue
+        default_concurrency_limit=200 # Maximum number of concurrent requests
+    )
+    
     return demo
